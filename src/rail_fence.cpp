@@ -35,8 +35,49 @@ string rail_fence_encrypt(const string &plaintext, int rails) {
 }
 
 string rail_fence_decrypt(const string &ciphertext, int rails) {
-    // TODO(student): Q5
-    return ciphertext;
+    if (rails <= 1 || ciphertext.empty()) return ciphertext;
+
+    int n = ciphertext.length();
+
+    // Tạo ma trận đánh dấu vị trí zigzag
+    vector<vector<char>> fence(rails, vector<char>(n, '\n'));
+
+    int row = 0;
+    int direction = 1;
+
+    // Đánh dấu vị trí cần điền ký tự
+    for (int col = 0; col < n; col++) {
+        fence[row][col] = '*';
+        row += direction;
+
+        if (row == rails - 1 || row == 0)
+            direction = -direction;
+    }
+
+    // Điền ciphertext vào đúng vị trí đã đánh dấu
+    int index = 0;
+    for (int i = 0; i < rails; i++) {
+        for (int j = 0; j < n; j++) {
+            if (fence[i][j] == '*' && index < n) {
+                fence[i][j] = ciphertext[index++];
+            }
+        }
+    }
+
+    // Đọc lại theo zigzag để ra plaintext
+    string plaintext;
+    row = 0;
+    direction = 1;
+
+    for (int col = 0; col < n; col++) {
+        plaintext += fence[row][col];
+        row += direction;
+
+        if (row == rails - 1 || row == 0)
+            direction = -direction;
+    }
+
+    return plaintext;
 }
 
 string read_message_from_file(const string &path) {
